@@ -1,13 +1,14 @@
 class Tile
 
-    attr_accessor :bomb, :flag, :explored, :bomb_count
+    attr_accessor :bomb, :flag, :explored, :bomb_count, :pos, :swept
 
-    def initialize(bomb = false, flag = false, explored = false)
-        @bomb = bomb
-        @flag = flag
-        @explored = explored
+    def initialize
+        @bomb = false
+        @flag = false
+        @explored = false
         @bomb_count = 0
         @pos = nil
+        @swept = false
     end
 
     def display

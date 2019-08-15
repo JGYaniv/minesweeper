@@ -1,4 +1,5 @@
 require_relative 'tile.rb'
+require 'byebug'
 
 class Board
 
@@ -99,7 +100,8 @@ class Board
 
     #returns (directly) adjacent tiles in an array & their coordinate [tile, [pos]]
     def adjacent_tiles(pos)
-        x, y = pos
+        x, y = pos.flatten
+        debugger unless x && y
 
         tiles = 
             [
@@ -114,67 +116,44 @@ class Board
             ]
         
         #selects truthy tiles, removing nils
-        tiles.select {|tile| tile}
+        tiles = tiles.select {|tile_touple| tile_touple.count == 2}
+        tiles = tiles.select {|tile_touple| tile_touple[0].explored == false}
+        
     end
 
     #return tile if valid pos, else nil
     def pos_to_tile(pos)
         x, y = pos
 
-        #prevents nil from being passed into board#[](pos)
-        return nil if x >= @grid.length || x < 0
-        return nil if y >= @grid.length || y < 0
+        #returns empty array if pos is invalid
+        return [] unless x && y
+        return [] if x >= @grid.length || x < 0
+        return [] if y >= @grid.length || y < 0
 
         [@grid[y][x], [pos]]
     end
 
     #reveals/explores adjacent tiles as long as they do not have bombs
     def reveal_adjacent(pos)
+
         tiles = adjacent_tiles(pos)
         tiles.each do |tile, pos|
-            next if tile == nil
             tile.explored = true unless tile.bomb
         end
     end
 
-    # #explores adjacent tiles if they have no adjacent bombs, recursively
-    # def explore_adjacent(pos)
-    #     x = pos[0]
-    #     y = pos[1]
+    #explores adjacent tiles if they have no adjacent bombs, recursively
+    def explore_adjacent(pos)
+        current_adjacent_tiles = adjacent_tiles(pos)
+        current_adjacent_tiles.each do |tile, pos| 
 
-    #     current_adjacent_tiles = adjacent_tiles(pos)
-    #     current_adjacent_tiles.each do |tile| 
-    #         unless adjacent_bombs?(pos) || tile.bomb
-    #             tile.explored == true
-    #             pos = find_pos(tile)
-    #             reveal_adjacent(pos)
-    #             explore_adjacent(pos)
-    #         end
-    #     end
-    # end
-
-    # #returns the coordinates of a tile with an iterative search
-    # def find_pos(target)
-    #     pos = nil
-    #     @grid.each_with_index do |row, y|
-    #         row.each_with_index do |tile, x|
-    #             pos = [x, y] if tile == target 
-    #         end
-    #     end
-    #     pos
-    # end
-
-    # #returns true/false if a tile has a bomb or (directly) adjacent bombs
-    # def adjacent_bombs?(pos)
-    #     x = pos[0]
-    #     y = pos[1]
-
-    #     return true if @grid[y][x].bomb
-
-    #     adjacent_tiles(pos).any? do |tile|
-    #         next if tile == nil
-    #         tile.bomb
-    #     end
-    # end
+            #continues to explores recursively if there are no adj bombs
+            unless tile.bomb_count > 0 || tile.bomb
+                tile.explored == true
+                reveal_adjacent(pos)
+                explore_adjacent(pos)
+            end
+        end
+    end
 
 end

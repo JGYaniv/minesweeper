@@ -82,7 +82,7 @@ class MineSweeper
 
     def explore(pos)
         @board.reveal_adjacent(pos)
-        # @board.explore_adjacent(pos)
+        @board.explore_adjacent(pos)
     end
 
     def exit
