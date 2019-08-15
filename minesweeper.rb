@@ -5,46 +5,94 @@ class MineSweeper
 
     def initialize
         @board = Board.new
+
         system("clear")
         @board.render
     end
 
     def run
+        #runs until the exploded or completed
         until @board.exploded? || @board.completed?
+
             pos = get_move
             make_move(pos)
-            system("clear")
+
             @board.render
         end
 
+        #end game message options
         if @board.exploded?
-            puts "\nYou are exploded! Try again.\n"
+            puts "\nYou are exploded!\n"
+            @board.reveal
+            puts "\nTry again.\n"
         elsif @board.completed?
             puts "\nYou win! Nice sweeping.\n"
+            @board.reveal
+            puts "\nNice sweeping.\n"
         end
 
     end
 
+    #user is prompted to enter coordinates to sweep
     def get_move
         puts "\nenter coordinate to sweep (x,y): "
         move = gets.chomp
+
+        #exit if user input for coordinates is 'exit'
         exit if move == "exit"
-        move = move.split(",").map{|num| num.to_i}  
+
+        #reveal if user wants to give up
+        if move == 'reveal'
+            @board.reveal
+            exit
+        end
+
+        #parse the move input into an array
+        move = move.split(",").map{|num| num.to_i} 
     end
 
-    def make_move(arr)
-        x = arr[0]
-        y = arr[1]
+    def make_move(pos)
+        x = pos[0]
+        y = pos[1]
 
+        #user inputs the explore 'e' or flag 'f' action
         puts "\nenter 'e' to explore or 'f' to add/remove flag: "
         action = gets.chomp
 
-        @board[y][x].explored = true if action == 'e'
-        @board[y][x].flag = !@board[y][x].flag if action == 'f'
+        current_tile = @board[y][x]
+
+        #explore 'e' action tree as long as it is not flagged
+        if action == 'e' && !current_tile.flag
+
+            #explore selected tile
+            current_tile.explored = true
+
+            #explore adjacent tiles if the selected tile does not explode
+            unless @board.exploded?
+                explore(pos)
+            end
+
+        #flag action tree
+        elsif action == 'f'
+
+            #sets tile flag parameter to inverse of boolean value
+            @board[y][x].flag = !@board[y][x].flag
+        end
+    end
+
+    def explore(pos)
+        @board.reveal_adjacent(pos)
+        # @board.explore_adjacent(pos)
     end
 
     def exit
         abort("\nlater quitter :/\n")
+    end
+
+    def valid_pos?
+    end
+
+    def valid_action?
     end
 
 end

@@ -5,6 +5,7 @@ class Board
     def initialize
         empty_board
         place_bombs
+        bomb_counter
     end
 
     def [](pos)
@@ -20,30 +21,56 @@ class Board
         @grid = Array.new(9) {Array.new(9) {Tile.new}}
     end
 
-    #displays current grid w/coordinates
-    def render
-        puts "  0  1  2  3  4  5  6  7  8  "
-        @grid.each_with_index do |row, idx|
-            print idx
-            row.each {|tile| tile.display}
-            puts "\n"
-        end
-    end
-
     #iterates through tiles and randomly places bombs
     def place_bombs
         @grid.each do |row|
             row.each do |tile|
 
-                #1/3 chance of tile containinb bomb
-                if (0...10).to_a.sample <= 2 
+                #1/10 chance of tile containing a bomb
+                if (0...10).to_a.sample == 0 
                     tile.bomb = true
                 end
             end
         end
     end
 
-    def reveal_all
+    #iterates through tiles, counts adjacent bombs,
+    def bomb_counter
+
+        @grid.each_with_index do |row, y|
+            row.each_with_index do |tile, x|
+                pos = [x, y]
+                tiles = adjacent_tiles(pos)
+                tiles = tiles.map {|tl| tl[0]}  #selects the tile objects from [tile, pos]
+                tile.bomb_count = tiles.count {|adj_tiles| adj_tiles.bomb}
+            end
+        end
+
+
+    end
+
+    #displays current grid w/coordinates
+    def render
+
+        #prints column headers
+        puts "\n\n\n"
+        puts "  0  1  2  3  4  5  6  7  8  "
+
+        @grid.each_with_index do |row, idx|
+
+            #prints row tiles & row values using tile#display
+            print idx
+            row.each {|tile| tile.display}
+
+            puts "\n"
+        end
+    end
+
+    #reveals all tiles for end game / debugging
+    def reveal
+        sleep(1.5)
+        puts "\n\n\n"
+        #system("clear")
         @grid.each do |row|
             row.each do |tile|
                 tile.explored = true
@@ -52,6 +79,7 @@ class Board
         render
     end
 
+    #checks if any mines have been explored, an end game condition
     def exploded?
         exploded = false
         @grid.each do |row|
@@ -62,11 +90,91 @@ class Board
         exploded
     end
 
+    #checks if all tiles w/out bombs have been explored, an end game condition
     def completed?
         @grid.all? do |row|
             row.all? {|tile| !tile.bomb && tile.explored}
         end
     end
 
+    #returns (directly) adjacent tiles in an array & their coordinate [tile, [pos]]
+    def adjacent_tiles(pos)
+        x, y = pos
+
+        tiles = 
+            [
+                pos_to_tile([x, y+1]),
+                pos_to_tile([x+1, y+1]),
+                pos_to_tile([x-1, y-1]),
+                pos_to_tile([x+1, y-1]),
+                pos_to_tile([x-1, y+1]),
+                pos_to_tile([x, y-1]),
+                pos_to_tile([x+1, y]),
+                pos_to_tile([x-1, y])
+            ]
+        
+        #selects truthy tiles, removing nils
+        tiles.select {|tile| tile}
+    end
+
+    #return tile if valid pos, else nil
+    def pos_to_tile(pos)
+        x, y = pos
+
+        #prevents nil from being passed into board#[](pos)
+        return nil if x >= @grid.length || x < 0
+        return nil if y >= @grid.length || y < 0
+
+        [@grid[y][x], [pos]]
+    end
+
+    #reveals/explores adjacent tiles as long as they do not have bombs
+    def reveal_adjacent(pos)
+        tiles = adjacent_tiles(pos)
+        tiles.each do |tile, pos|
+            next if tile == nil
+            tile.explored = true unless tile.bomb
+        end
+    end
+
+    # #explores adjacent tiles if they have no adjacent bombs, recursively
+    # def explore_adjacent(pos)
+    #     x = pos[0]
+    #     y = pos[1]
+
+    #     current_adjacent_tiles = adjacent_tiles(pos)
+    #     current_adjacent_tiles.each do |tile| 
+    #         unless adjacent_bombs?(pos) || tile.bomb
+    #             tile.explored == true
+    #             pos = find_pos(tile)
+    #             reveal_adjacent(pos)
+    #             explore_adjacent(pos)
+    #         end
+    #     end
+    # end
+
+    # #returns the coordinates of a tile with an iterative search
+    # def find_pos(target)
+    #     pos = nil
+    #     @grid.each_with_index do |row, y|
+    #         row.each_with_index do |tile, x|
+    #             pos = [x, y] if tile == target 
+    #         end
+    #     end
+    #     pos
+    # end
+
+    # #returns true/false if a tile has a bomb or (directly) adjacent bombs
+    # def adjacent_bombs?(pos)
+    #     x = pos[0]
+    #     y = pos[1]
+
+    #     return true if @grid[y][x].bomb
+
+    #     adjacent_tiles(pos).any? do |tile|
+    #         next if tile == nil
+    #         tile.bomb
+    #     end
+    # end
 
 end
