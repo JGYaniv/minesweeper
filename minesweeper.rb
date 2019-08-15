@@ -81,8 +81,12 @@ class MineSweeper
     end
 
     def explore(pos)
-        @board.reveal_adjacent(pos)
-        @board.explore_adjacent(pos)
+        # @board.reveal_adjacent(pos)
+        tile_touples = @board.sweep_tile(pos)
+        tile_touples.each do |tile_touple|
+            tile = tile_touple[0]
+            tile.explored = true
+        end
     end
 
     def exit

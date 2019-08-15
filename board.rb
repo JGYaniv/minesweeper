@@ -117,11 +117,10 @@ class Board
         
         #selects truthy tiles, removing nils
         tiles = tiles.select {|tile_touple| tile_touple.count == 2}
-        tiles = tiles.select {|tile_touple| tile_touple[0].explored == false}
         
     end
 
-    #return tile if valid pos, else nil
+    #return [tile, pos] if valid pos, else []
     def pos_to_tile(pos)
         x, y = pos
 
@@ -142,18 +141,43 @@ class Board
         end
     end
 
-    #explores adjacent tiles if they have no adjacent bombs, recursively
-    def explore_adjacent(pos)
-        current_adjacent_tiles = adjacent_tiles(pos)
-        current_adjacent_tiles.each do |tile, pos| 
+    def sweep_tile(pos)
 
-            #continues to explores recursively if there are no adj bombs
-            unless tile.bomb_count > 0 || tile.bomb
-                tile.explored == true
-                reveal_adjacent(pos)
-                explore_adjacent(pos)
-            end
+        x, y = pos.flatten
+        debugger unless x && y
+
+        current_tile_touple = pos_to_tile(pos)
+        current_tile = current_tile_touple[0] if current_tile_touple.length == 2
+
+        tiles = 
+            [
+                pos_to_tile([x, y+1]),
+                pos_to_tile([x+1, y+1]),
+                pos_to_tile([x-1, y-1]),
+                pos_to_tile([x+1, y-1]),
+                pos_to_tile([x-1, y+1]),
+                pos_to_tile([x, y-1]),
+                pos_to_tile([x+1, y]),
+                pos_to_tile([x-1, y])
+            ]
+        
+        #selects tiles that are valid pos & unswept
+        tiles = tiles.select {|tile_touple| tile_touple.count == 2}
+        tiles = tiles.select {|tile_touple| tile_touple[0].swept == false}
+
+        return tiles if tiles.count == 0
+
+        tiles.each do |tile_touple|
+            tile_touple[0].swept = true
         end
+        
+        tiles = tiles.select {|tile_touple| tile_touple[0].bomb == false}
+
+        more_tiles = []
+        tiles.each {|tile_touple| more_tiles += sweep_tile(tile_touple[1])}
+        tiles + more_tiles
+
     end
+
 
 end
