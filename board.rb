@@ -93,10 +93,10 @@ class Board
 
     #checks if all tiles w/out bombs have been explored, an end game condition
     def completed?
-        completed = false
+        completed = true
         @grid.each do |row|
             row.each do |tile|
-                completed = true if !tile.bomb && tile.explored
+                completed = false if !tile.bomb && !tile.explored
             end
         end
 
@@ -151,8 +151,8 @@ class Board
         x, y = pos.flatten
         debugger unless x && y
 
+        #an attempt to stop the sweeping when a tile has bomb count of more than 0
         current_tile_touple = pos_to_tile(pos)
-        current_tile = current_tile_touple[0] if current_tile_touple.length == 2
 
         tiles = 
             [
@@ -179,7 +179,7 @@ class Board
         tiles = tiles.select {|tile_touple| tile_touple[0].bomb == false}
 
         more_tiles = []
-        tiles.each {|tile_touple| more_tiles += sweep_tile(tile_touple[1])}
+        tiles.each {|tile_touple| more_tiles += sweep_tile(tile_touple[1]) if tile_touple[0].bomb_count == 0}
         tiles + more_tiles
 
     end

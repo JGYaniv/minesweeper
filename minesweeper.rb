@@ -6,7 +6,7 @@ class MineSweeper
     def initialize
         @board = Board.new
 
-        system("clear")
+        # system("clear")
         @board.render
     end
 
@@ -23,11 +23,8 @@ class MineSweeper
 
             @board.render
             turn_counter += 1
-
             completed = @board.completed?
             exploded = @board.exploded?
-
-            byebug if turn_counter > 0
         end
 
         #end game message options
