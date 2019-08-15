@@ -11,13 +11,23 @@ class MineSweeper
     end
 
     def run
+        turn_counter = 0
+        completed = @board.completed?
+        exploded = @board.exploded?
+        
         #runs until the exploded or completed
-        until @board.exploded? || @board.completed?
+        until exploded || completed
 
             pos = get_move
             make_move(pos)
 
             @board.render
+            turn_counter += 1
+
+            completed = @board.completed?
+            exploded = @board.exploded?
+
+            byebug if turn_counter > 0
         end
 
         #end game message options

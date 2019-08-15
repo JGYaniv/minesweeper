@@ -93,9 +93,14 @@ class Board
 
     #checks if all tiles w/out bombs have been explored, an end game condition
     def completed?
-        @grid.all? do |row|
-            row.all? {|tile| !tile.bomb && tile.explored}
+        completed = false
+        @grid.each do |row|
+            row.each do |tile|
+                completed = true if !tile.bomb && tile.explored
+            end
         end
+
+        completed
     end
 
     #returns (directly) adjacent tiles in an array & their coordinate [tile, [pos]]
