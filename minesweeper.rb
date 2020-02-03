@@ -41,7 +41,7 @@ class MineSweeper
 
     #user is prompted to enter coordinates to sweep
     def get_move
-        puts "\nenter coordinate to sweep (x,y): "
+        puts "\nenter coordinates (column, row) to sweep: "
         move = gets.chomp
 
         #exit if user input for coordinates is 'exit'
