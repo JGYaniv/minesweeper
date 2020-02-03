@@ -1,5 +1,4 @@
 require_relative 'tile.rb'
-require 'byebug'
 
 class Board
 
