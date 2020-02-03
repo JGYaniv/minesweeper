@@ -7,7 +7,7 @@ https://en.wikipedia.org/wiki/Minesweeper_(video_game)
 
 Instructions:
  - Run minesweeper.rb
- - Enter coordinates
+ - Enter coordinates (x,y) x for column and y for row numbers.
  - Chose to explore or flag
  - To explore a flagged, tile, first un-flag it
 
