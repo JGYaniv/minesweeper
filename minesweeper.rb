@@ -14,7 +14,7 @@ class MineSweeper
         completed = @board.completed?
         exploded = @board.exploded?
         
-        #runs until the exploded or completed
+        #runs until exploded or completed
         until exploded || completed
 
             pos = get_move
